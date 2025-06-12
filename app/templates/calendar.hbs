@@ -85,16 +85,59 @@
 
   <!-- MONTH VIEW -->
   {{else}}
-    <div class="alert alert-info text-center">Month View Coming Soon</div>
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <button class="btn btn-outline-secondary btn-sm" {{action "prevMonth"}}>← Prev</button>
+      <h5 class="mb-0">{{moment-format currentMonth 'MMMM YYYY'}}</h5>
+      <button class="btn btn-outline-secondary btn-sm" {{action "nextMonth"}}>Next →</button>
+    </div>
+
+    <div class="table-responsive rounded overflow-hidden border">
+      <table class="table table-bordered text-center mb-0 small">
+        <thead class="table-light sticky-top">
+          <tr>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+            <th>Sat</th>
+            <th>Sun</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each (month-grid currentMonth) as |week|}}
+            <tr>
+              {{#each week as |dateObj|}}
+                <td class="position-relative p-1 {{if dateObj.isCurrentMonth '' 'bg-light text-muted'}}"
+                    style="height: 100px; min-width: 120px;"
+                    draggable="false"
+                    ondrop={{action "handleDrop" dateObj.date 0}}
+                    ondragover={{action "allowDrop"}}
+                    {{action "openAddEventModal" dateObj.date 0}}
+                >
+                  <div class="position-absolute top-0 end-0 small text-muted m-1">{{moment-format dateObj.date "D"}}</div>
+
+                  {{#each model.events as |event|}}
+                    {{#if (eq (format-date event.date) dateObj.date)}}
+                      <div class="bg-primary text-white rounded px-1 py-0 mb-1 small text-truncate"
+                           draggable="true"
+                           ondragstart={{action "handleDragStart" event}}
+                           {{action "stopPropagation"}}
+                      >
+                        {{event.title}}
+                      </div>
+                    {{/if}}
+                  {{/each}}
+                </td>
+              {{/each}}
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
   {{/if}}
 
-  <div class="mt-4">
-    <a href="/" class="btn btn-outline-secondary rounded-pill px-4">← Back to Events</a>
-  </div>
-
-
-
-  <!-- Modal for Add/Edit Event -->
+  <!-- Modal -->
   <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content shadow-lg rounded-3">

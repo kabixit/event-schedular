@@ -7,9 +7,27 @@ export default Controller.extend({
   newEventDate: '',
   editingEventId: null,
 
+  init() {
+    this._super(...arguments);
+    this.set('currentMonth', moment().startOf('month').format('YYYY-MM-DD'));
+  },
+
   actions: {
     setView(view) {
       this.set('currentView', view);
+      if (view === 'month') {
+        this.set('currentMonth', moment().startOf('month').format('YYYY-MM-DD'));
+      }
+    },
+
+    nextMonth() {
+      let next = moment(this.get('currentMonth')).add(1, 'month').format('YYYY-MM-DD');
+      this.set('currentMonth', next);
+    },
+
+    prevMonth() {
+      let prev = moment(this.get('currentMonth')).subtract(1, 'month').format('YYYY-MM-DD');
+      this.set('currentMonth', prev);
     },
 
     openAddEventModal(date, hour) {
