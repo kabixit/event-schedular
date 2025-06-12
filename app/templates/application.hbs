@@ -1,17 +1,23 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg premium-navbar sticky-top shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Event Manager</a>
+    <a class="navbar-brand fw-bold gradient-text fs-4" href="#">Event Manager</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
       aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav ms-auto gap-3 align-items-center">
         <li class="nav-item">
-          {{#link-to "index" class="nav-link"}}Home{{/link-to}}
+          {{#link-to "index" class="nav-link premium-link"}}Home{{/link-to}}
         </li>
         <li class="nav-item">
-          {{#link-to "calendar" class="nav-link"}}Calendar{{/link-to}}
+          {{#link-to "calendar" class="nav-link premium-link"}}Calendar{{/link-to}}
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-sm toggle-theme-btn rounded-pill px-3 py-1" {{action "toggleTheme"}}>
+            🌓 <span class="d-none d-md-inline">Toggle Dark Mode</span>
+          </button>
         </li>
       </ul>
     </div>
