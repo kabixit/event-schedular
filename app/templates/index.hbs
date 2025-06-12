@@ -1,0 +1,56 @@
+<div class="container py-5">
+  <h1 class="mb-4">Event Manager</h1>
+
+  <form {{action "addEvent" on="submit"}} class="mb-4">
+    <div class="mb-3">
+      <label for="eventTitle" class="form-label">Event Title</label>
+      {{input value=newEventTitle class="form-control" id="eventTitle" placeholder="Enter event title"}}
+    </div>
+
+    <div class="mb-3">
+      <label for="eventDate" class="form-label">Date & Time</label>
+      <input type="datetime-local" id="eventDate" class="form-control" value={{newEventDate}} onchange={{action (mut newEventDate) value="target.value"}}>
+    </div>
+
+    <div class="mb-3">
+      <label for="eventDescription" class="form-label">Description</label>
+      {{textarea value=newEventDescription class="form-control" id="eventDescription" placeholder="Optional description"}}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add Event</button>
+  </form>
+
+  <h2 class="mb-3">Event List</h2>
+
+  {{#if events.length}}
+    <ul class="list-group">
+      {{#each events as |event|}}
+        <li class="list-group-item">
+
+          {{#if (eq editingEventId event.id)}}
+            <div class="mb-2">
+              {{input value=editedEventTitle class="form-control mb-2" placeholder="Event Title"}}
+              <input type="datetime-local" class="form-control mb-2" value={{editedEventDate}} onchange={{action (mut editedEventDate) value="target.value"}}>
+              {{textarea value=editedEventDescription class="form-control mb-2" placeholder="Description"}}
+            </div>
+
+            <button class="btn btn-success btn-sm me-2" {{action "saveEdit" event}}>Save</button>
+            <button class="btn btn-secondary btn-sm" {{action "cancelEdit"}}>Cancel</button>
+
+          {{else}}
+            <h5 class="mb-1">{{event.title}}</h5>
+            <small class="text-muted">{{event.date}}</small>
+            {{#if event.description}}
+              <p class="mb-1">{{event.description}}</p>
+            {{/if}}
+            <button class="btn btn-warning btn-sm me-2" {{action "startEdit" event}}>Edit</button>
+            <button class="btn btn-danger btn-sm" {{action "deleteEvent" event}}>Delete</button>
+          {{/if}}
+
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="text-muted">No events added yet.</p>
+  {{/if}}
+</div>
