@@ -1,12 +1,17 @@
 import Controller from '@ember/controller';
 
 export default Controller.extend({
+  currentView: 'week', // 'week', 'day', or 'month'
   newEventTitle: '',
   newEventDescription: '',
   newEventDate: '',
   editingEventId: null,
 
   actions: {
+    setView(view) {
+      this.set('currentView', view);
+    },
+
     openAddEventModal(date, hour) {
       let datetime = `${date}T${hour.toString().padStart(2, '0')}:00`;
       this.setProperties({

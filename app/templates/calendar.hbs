@@ -1,73 +1,98 @@
 <div class="container py-4">
 
-  <div class="table-responsive rounded overflow-hidden">
-    <table class="table table-bordered text-center align-middle mb-0">
-      <thead class="table-light sticky-top">
-        <tr>
-          <th class="bg-light text-nowrap">Time</th>
-          {{#each model.days as |day|}}
-            <th class="bg-light text-nowrap">{{day.label}}</th>
-          {{/each}}
-        </tr>
-      </thead>
-      <tbody>
-        {{#each model.hours as |hour|}}
+  <!-- View Switcher -->
+  <div class="mb-3 d-flex justify-content-end gap-2">
+    <button {{action "setView" "week"}} class="btn btn-outline-primary {{if (eq currentView 'week') 'active'}}">Week</button>
+    <button {{action "setView" "day"}} class="btn btn-outline-primary {{if (eq currentView 'day') 'active'}}">Day</button>
+    <button {{action "setView" "month"}} class="btn btn-outline-primary {{if (eq currentView 'month') 'active'}}">Month</button>
+  </div>
+
+  <!-- WEEK VIEW -->
+  {{#if (eq currentView "week")}}
+    <div class="table-responsive rounded overflow-hidden">
+      <table class="table table-bordered text-center align-middle mb-0">
+        <thead class="table-light sticky-top">
           <tr>
-            <th class="align-middle text-nowrap bg-light">
-              {{if (lt hour 10) (concat "0" hour) hour}}:00
-            </th>
+            <th class="bg-light text-nowrap">Time</th>
             {{#each model.days as |day|}}
-              <td
-                class="position-relative calendar-cell"
-                style="min-width: 120px; height: 100px; padding: 2px; overflow-y: auto; cursor: pointer; transition: background-color 0.2s ease;"
-                {{action "openAddEventModal" day.date hour}}
-                onmouseover="this.style.backgroundColor='#f8f9fa';"
-                onmouseout="this.style.backgroundColor='';"
-                ondragover={{action "allowDrop"}}
-                ondrop={{action "handleDrop" day.date hour}}
-              >
-                {{#each model.events as |event|}}
-                  {{#if (and (eq (format-date event.date) day.date) (eq (format-hour event.date) hour))}}
-                    <div
-                      class="bg-primary text-white rounded px-2 py-1 mb-1 small d-flex justify-content-between align-items-start shadow-sm"
-                      style="font-size: 0.75rem;"
-                      draggable="true"
-                      {{action "stopPropagation"}}
-                      ondragstart={{action "handleDragStart" event}}
-                    >
-                      <div class="text-start" style="overflow: hidden; max-width: 75%;">
-                        <div class="fw-semibold text-truncate">{{event.title}}</div>
-                        <div class="small text-white-50">{{format-time event.date}}</div>
-                      </div>
-                      <div class="ms-1 d-flex flex-column align-items-end gap-1">
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-outline-light rounded-circle px-1 py-0"
-                          style="font-size: 0.65rem; border-width: 1px;"
-                          title="Delete"
-                          {{action "deleteEvent" event.id bubbles=false}}
-                        >×</button>
-                        <button
-                          type="button"
-                          class="btn btn-sm btn-light text-primary rounded-pill px-2 py-0 fw-semibold border"
-                          style="font-size: 0.6rem;"
-                          {{action "openEditEventModal" event bubbles=false}}
-                        >Edit</button>
-                      </div>
-                    </div>
-                  {{/if}}
-                {{/each}}
-              </td>
+              <th class="bg-light text-nowrap">{{day.label}}</th>
             {{/each}}
           </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {{#each model.hours as |hour|}}
+            <tr>
+              <th class="align-middle text-nowrap bg-light">{{if (lt hour 10) (concat "0" hour) hour}}:00</th>
+              {{#each model.days as |day|}}
+                <td
+                  class="calendar-cell position-relative"
+                  style="min-width: 120px; height: 100px; padding: 2px;"
+                  draggable="false"
+                  ondrop={{action "handleDrop" day.date hour}}
+                  ondragover={{action "allowDrop"}}
+                  {{action "openAddEventModal" day.date hour}}
+                >
+                  {{#each model.events as |event|}}
+                    {{#if (and (eq (format-date event.date) day.date) (eq (format-hour event.date) hour))}}
+                      <div
+                        class="bg-primary text-white rounded px-2 py-1 mb-1 small d-flex justify-content-between align-items-start shadow-sm"
+                        draggable="true"
+                        ondragstart={{action "handleDragStart" event}}
+                        {{action "stopPropagation"}}
+                      >
+                        <div class="text-start" style="overflow: hidden; max-width: 75%;">
+                          <div class="fw-semibold text-truncate">{{event.title}}</div>
+                          <div class="small text-white-50">{{format-time event.date}}</div>
+                        </div>
+                        <div class="ms-1 d-flex flex-column align-items-end gap-1">
+                          <button type="button" class="btn btn-sm btn-outline-light rounded-circle px-1 py-0"
+                            {{action "deleteEvent" event.id bubbles=false}}>×</button>
+                          <button type="button" class="btn btn-sm btn-light text-primary rounded-pill px-2 py-0 fw-semibold border"
+                            {{action "openEditEventModal" event bubbles=false}}>Edit</button>
+                        </div>
+                      </div>
+                    {{/if}}
+                  {{/each}}
+                </td>
+              {{/each}}
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+  <!-- DAY VIEW -->
+  {{else if (eq currentView "day")}}
+    <div class="mb-2 fw-semibold">Today: {{moment-format (now) 'dddd, MMMM Do YYYY'}}</div>
+    <div class="list-group">
+      {{#each model.events as |event|}}
+        {{#if (eq (format-date event.date) (today-date))}}
+          <div class="list-group-item d-flex justify-content-between align-items-center shadow-sm">
+            <div>
+              <div class="fw-semibold">{{event.title}}</div>
+              <div class="small text-muted">{{format-time event.date}}</div>
+            </div>
+            <div>
+              <button {{action "openEditEventModal" event bubbles=false}} class="btn btn-sm btn-outline-primary me-2">Edit</button>
+              <button {{action "deleteEvent" event.id bubbles=false}} class="btn btn-sm btn-outline-danger">Delete</button>
+            </div>
+          </div>
+        {{/if}}
+      {{else}}
+        <div class="text-muted">No events today.</div>
+      {{/each}}
+    </div>
+
+  <!-- MONTH VIEW -->
+  {{else}}
+    <div class="alert alert-info text-center">Month View Coming Soon</div>
+  {{/if}}
 
   <div class="mt-4">
     <a href="/" class="btn btn-outline-secondary rounded-pill px-4">← Back to Events</a>
   </div>
+
+
 
   <!-- Modal for Add/Edit Event -->
   <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
