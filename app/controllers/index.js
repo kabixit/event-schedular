@@ -23,7 +23,13 @@ export default Controller.extend({
       let description = this.get('newEventDescription').trim();
 
       if (!title || !date) {
-        alert('Please enter both Event Title and Date.');
+        this.showAlert('Please enter both Event Title and Date.');
+        return;
+      }
+
+      let isConflict = this.get('events').any((event) => event.date === date);
+      if (isConflict) {
+        this.showAlert('An event is already scheduled at this time.');
         return;
       }
 
@@ -34,7 +40,7 @@ export default Controller.extend({
         description: description
       };
 
-      this.get('events').pushObject(newEvent); // ✅ Ember’s observable array → triggers UI update!
+      this.get('events').pushObject(newEvent);
 
       this.setProperties({
         newEventTitle: '',
@@ -92,5 +98,10 @@ export default Controller.extend({
 
   saveEvents() {
     localStorage.setItem('events', JSON.stringify(this.get('events')));
+  },
+
+  showAlert(message) {
+    Ember.$('#alertModalBody').text(message);
+    Ember.$('#alertModal').modal('show');
   }
 });
