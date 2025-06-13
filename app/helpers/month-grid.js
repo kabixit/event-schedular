@@ -1,32 +1,23 @@
 import Ember from 'ember';
 
-export function monthGrid([month] /*, hash*/) {
-  let startOfMonth = moment(month).startOf('month');
-  let endOfMonth = moment(month).endOf('month');
-
-  // Start from the Monday before or equal to start of month
-  let startDate = moment(startOfMonth).startOf('week').add(1, 'day');
-  if (startDate.day() !== 1) {
-    startDate = startDate.subtract(startDate.day() - 1, 'days');
-  }
-
-  let grid = [];
-  let date = startDate.clone();
-
-  // Create a 6-week grid (6 rows × 7 days)
-  for (let week = 0; week < 6; week++) {
-    let weekRow = [];
-    for (let day = 0; day < 7; day++) {
-      weekRow.push({
-        date: date.format('YYYY-MM-DD'),
-        isCurrentMonth: date.month() === startOfMonth.month()
+export default Ember.Helper.helper(function([month]) {
+  const startDate = window.moment(month).startOf('month').startOf('week');
+  const endDate = window.moment(month).endOf('month').endOf('week');
+  
+  const weeks = [];
+  let currentDate = startDate.clone();
+  
+  while (currentDate.isBefore(endDate)) {
+    const week = [];
+    for (let i = 0; i < 7; i++) {
+      week.push({
+        date: currentDate.format('YYYY-MM-DD'),
+        isCurrentMonth: currentDate.month() === window.moment(month).month()
       });
-      date.add(1, 'day');
+      currentDate.add(1, 'day');
     }
-    grid.push(weekRow);
+    weeks.push(week);
   }
-
-  return grid;
-}
-
-export default Ember.Helper.helper(monthGrid);
+  
+  return weeks;
+});

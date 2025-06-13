@@ -1,8 +1,7 @@
 import Ember from 'ember';
-import Controller from '@ember/controller';
+import EventManager from '../mixins/event-manager';
 
-export default Controller.extend({
-  events: null,
+export default Ember.Controller.extend(EventManager, {
   newEventTitle: '',
   newEventDate: '',
   newEventDescription: '',
@@ -11,49 +10,25 @@ export default Controller.extend({
   editedEventDate: '',
   editedEventDescription: '',
 
-  init() {
-    this._super(...arguments);
-    this.loadEvents();
+  showAlert(message) {
+    const $modal = Ember.$('#alertModal');
+    Ember.$('#alertModalBody').text(message);
+    $modal.modal('show');
   },
 
   actions: {
     addEvent() {
-      let title = this.get('newEventTitle').trim();
-      let date = this.get('newEventDate').trim();
-      let description = this.get('newEventDescription').trim();
+      const title = this.get('newEventTitle');
+      const date = this.get('newEventDate');
+      const description = this.get('newEventDescription');
 
-      if (!title || !date) {
-        this.showAlert('Please enter both Event Title and Date.');
-        return;
+      if (this.addEvent(title, date, description)) {
+        this.setProperties({
+          newEventTitle: '',
+          newEventDate: '',
+          newEventDescription: ''
+        });
       }
-
-      let isConflict = this.get('events').any((event) => event.date === date);
-      if (isConflict) {
-        this.showAlert('An event is already scheduled at this time.');
-        return;
-      }
-
-      let newEvent = {
-        id: Date.now(),
-        title: title,
-        date: date,
-        description: description
-      };
-
-      this.get('events').pushObject(newEvent);
-
-      this.setProperties({
-        newEventTitle: '',
-        newEventDate: '',
-        newEventDescription: ''
-      });
-
-      this.saveEvents();
-    },
-
-    deleteEvent(event) {
-      this.get('events').removeObject(event);
-      this.saveEvents();
     },
 
     startEdit(event) {
@@ -69,39 +44,22 @@ export default Controller.extend({
       this.set('editingEventId', null);
     },
 
-    saveEdit(event) {
-      let title = this.get('editedEventTitle').trim();
-      let date = this.get('editedEventDate').trim();
-      let description = this.get('editedEventDescription').trim();
-
-      if (!title || !date) {
-        alert('Please provide both Title and Date.');
-        return;
-      }
-
-      let foundEvent = this.get('events').findBy('id', event.id);
-      if (foundEvent) {
-        Ember.set(foundEvent, 'title', title);
-        Ember.set(foundEvent, 'date', date);
-        Ember.set(foundEvent, 'description', description);
-        this.saveEvents();
+    saveEdit() {
+      const event = this.findEventById(this.get('editingEventId'));
+      if (event) {
+        this.updateEvent(
+          event.id,
+          this.get('editedEventTitle'),
+          this.get('editedEventDate'),
+          this.get('editedEventDescription')
+        );
         this.set('editingEventId', null);
       }
+    },
+
+     deleteEvent(event) {
+      this.deleteEvent(event);
+      return false; 
     }
-  },
-
-  loadEvents() {
-    let stored = localStorage.getItem('events');
-    let events = stored ? JSON.parse(stored) : [];
-    this.set('events', Ember.A(events)); // ✅ Wrap with Ember.A → works in Ember 2.18
-  },
-
-  saveEvents() {
-    localStorage.setItem('events', JSON.stringify(this.get('events')));
-  },
-
-  showAlert(message) {
-    Ember.$('#alertModalBody').text(message);
-    Ember.$('#alertModal').modal('show');
   }
 });

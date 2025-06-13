@@ -1,7 +1,5 @@
-import { helper } from '@ember/component/helper';
+import Ember from 'ember';
 
-export function formatTime([datetime]) {
-  return window.moment(datetime).format('HH:mm'); // 24-hour; use 'h:mm A' for AM/PM
-}
-
-export default helper(formatTime);
+export default Ember.Helper.helper(function([date]) {
+  return window.moment(date).format('HH:mm');
+});

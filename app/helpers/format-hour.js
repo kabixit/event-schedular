@@ -1,7 +1,5 @@
-import { helper } from '@ember/component/helper';
+import Ember from 'ember';
 
-export function formatHour([datetime]) {
-  return parseInt(window.moment(datetime).format('H'), 10); // 0–23
-}
-
-export default helper(formatHour);
+export default Ember.Helper.helper(function([date]) {
+  return window.moment(date).hour();
+});

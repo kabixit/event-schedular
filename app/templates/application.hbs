@@ -24,26 +24,23 @@
   </div>
 </nav>
 
-
-
-
 <div class="container my-4">
   {{outlet}}
 </div>
 
-<!-- Alert Modal -->
-<div class="modal fade" id="alertModal" tabindex="-1" role="dialog" aria-labelledby="alertModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow-lg rounded-4 border-0">
       <div class="modal-header bg-danger text-white rounded-top-4">
         <h5 class="modal-title fw-bold" id="alertModalLabel">⚠️ Warning</h5>
-        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" id="alertModalBody">
-        <!-- Alert message will be set dynamically -->
+      <div class="modal-body fs-6 text-secondary" id="alertModalMessage">
+        Another event already scheduled at the same time.
       </div>
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-danger px-4" data-dismiss="modal">OK</button>
+      <div class="modal-footer bg-light rounded-bottom-4">
+        <button type="button" class="btn btn-outline-secondary rounded-pill px-3" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger rounded-pill px-3" data-bs-dismiss="modal">OK</button>
       </div>
     </div>
   </div>

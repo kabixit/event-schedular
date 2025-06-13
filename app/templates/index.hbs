@@ -1,10 +1,7 @@
 <div class="container py-5">
-
-  <!-- Premium Add Event Form -->
   <div class="card mb-5 premium-card border-0 shadow-lg rounded-4 position-relative overflow-hidden">
     <div class="card-overlay"></div>
     <div class="card-body p-5 position-relative">
-
       <h2 class="mb-4 fw-bold display-7 gradient-text">Add New Event</h2>
 
       <form {{action "addEvent" on="submit"}}>
@@ -25,15 +22,13 @@
           </div>
         </div>
 
-        <div class="mt-4 ">
+        <div class="mt-4">
           <button type="submit" class="btn btn-gradient px-5 py-2 rounded-pill fs-5 shadow-sm">+ Add Event</button>
         </div>
       </form>
-
     </div>
   </div>
 
-  <!-- Upcoming Events -->
   <h2 class="mb-4 fw-bold display-7 text-dark">All Events</h2>
 
   {{#if events.length}}
@@ -57,7 +52,7 @@
             {{else}}
               <div>
                 <h5 class="fw-bold text-dark mb-1">{{event.title}}</h5>
-                <div class="small text-muted mb-2">{{event.date}}</div>
+                <div class="small text-muted mb-2">{{format-date event.date 'LLLL'}}</div>
                 {{#if event.description}}
                   <p class="text-secondary small mb-3">{{event.description}}</p>
                 {{/if}}
@@ -65,15 +60,20 @@
 
               <div class="d-flex flex-wrap gap-2">
                 <button class="btn btn-outline-warning btn-sm px-4 rounded-pill shadow-sm" {{action "startEdit" event}}>Edit</button>
-                <button class="btn btn-outline-danger btn-sm px-4 rounded-pill shadow-sm" {{action "deleteEvent" event}}>Delete</button>
+                {{! app/templates/index.hbs }}
+                <button 
+                  class="btn btn-outline-danger btn-sm px-4 rounded-pill shadow-sm" 
+                  {{action "deleteEvent" event bubbles=false}}
+                  title="Delete event"
+                >
+                  Delete
+                </button>
               </div>
-
             {{/if}}
           </div>
         </div>
       {{/each}}
     </div>
-
   {{else}}
     <div class="text-center py-5">
       <div class="mb-3 fs-1 gradient-text">📅</div>

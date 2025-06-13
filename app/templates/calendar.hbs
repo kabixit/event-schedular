@@ -1,9 +1,10 @@
+{{!-- calendar.hbs --}}
 <div class="container py-4">
-
   <div class="mb-3 d-flex justify-content-end gap-2">
     <button {{action "setView" "week"}} class="btn btn-outline-primary {{if (eq currentView 'week') 'active'}}">Week</button>
     <button {{action "setView" "day"}} class="btn btn-outline-primary {{if (eq currentView 'day') 'active'}}">Day</button>
     <button {{action "setView" "month"}} class="btn btn-outline-primary {{if (eq currentView 'month') 'active'}}">Month</button>
+    {{export-calendar events=events}} {{! <-- Add this here }}
   </div>
 
   {{#if (eq currentView "week")}}
@@ -30,7 +31,7 @@
                   ondragover={{action "allowDrop"}}
                   {{action "openAddEventModal" day.date hour}}
                 >
-                  {{#each model.events as |event|}}
+                  {{#each events as |event|}}
                     {{#if (and (eq (format-date event.date) day.date) (eq (format-hour event.date) hour))}}
                       <div
                         class="bg-primary text-white rounded px-2 py-1 mb-1 small d-flex justify-content-between align-items-start shadow-sm"
@@ -62,7 +63,7 @@
   {{else if (eq currentView "day")}}
     <div class="mb-2 fw-semibold">Today: {{moment-format (now) 'dddd, MMMM Do YYYY'}}</div>
     <div class="list-group">
-      {{#each model.events as |event|}}
+      {{#each events as |event|}}
         {{#if (eq (format-date event.date) (today-date))}}
           <div class="list-group-item d-flex justify-content-between align-items-center shadow-sm">
             <div>
@@ -113,7 +114,7 @@
                 >
                   <div class="position-absolute top-0 end-0 small text-muted m-1">{{moment-format dateObj.date "D"}}</div>
 
-                  {{#each model.events as |event|}}
+                  {{#each events as |event|}}
                     {{#if (eq (format-date event.date) dateObj.date)}}
                       <div class="bg-primary text-white rounded px-1 py-0 mb-1 small text-truncate"
                            draggable="true"
@@ -133,6 +134,7 @@
     </div>
   {{/if}}
 
+  {{!-- Modal --}}
   <div class="modal fade" id="addEventModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content shadow-lg rounded-3">
@@ -152,7 +154,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label fw-semibold">Date & Time</label>
-              {{input value=newEventDate class="form-control" type="datetime-local" readonly=true}}
+              {{input value=newEventDate class="form-control" type="datetime-local" }}
             </div>
           </div>
           <div class="modal-footer bg-light">

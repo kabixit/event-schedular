@@ -1,7 +1,5 @@
-import { helper } from '@ember/component/helper';
+import Ember from 'ember';
 
-export function formatDate([datetime], { format = 'YYYY-MM-DD' } = {}) {
-  return window.moment(datetime).format(format);
-}
-
-export default helper(formatDate);
+export default Ember.Helper.helper(function([date, format]) {
+  return window.moment(date).format(format || 'YYYY-MM-DD');
+});
