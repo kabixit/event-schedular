@@ -4,24 +4,24 @@ export default Ember.Component.extend({
   actions: {
     exportToICS(events) {
       let icsContent = `
-BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//YourApp//EN
-CALSCALE:GREGORIAN
-`;
+        BEGIN:VCALENDAR
+        VERSION:2.0
+        PRODID:-//YourApp//EN
+        CALSCALE:GREGORIAN
+        `;
 
-      events.forEach(event => {
-        const localDateTime = this.formatToICSDateTimeLocal(new Date(event.date));
+            events.forEach(event => {
+                const localDateTime = this.formatToICSDateTimeLocal(new Date(event.date));
 
-        icsContent += `
-BEGIN:VEVENT
-UID:${event.id}@yourapp
-DTSTAMP:${this.formatToICSDateTimeLocal(new Date())}
-DTSTART:${localDateTime}
-SUMMARY:${this.escapeText(event.title)}
-DESCRIPTION:${this.escapeText(event.description || '')}
-END:VEVENT
-`;
+                icsContent += `
+        BEGIN:VEVENT
+        UID:${event.id}@yourapp
+        DTSTAMP:${this.formatToICSDateTimeLocal(new Date())}
+        DTSTART:${localDateTime}
+        SUMMARY:${this.escapeText(event.title)}
+        DESCRIPTION:${this.escapeText(event.description || '')}
+        END:VEVENT
+        `;
       });
 
       icsContent += `END:VCALENDAR`;

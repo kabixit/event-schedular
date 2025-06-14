@@ -110,7 +110,7 @@ export default Ember.Controller.extend(EventManager, {
     },
 
 
-    deleteEventAndUpdate(eventOrId) {
+    deleteEvent(eventOrId) {
       this.deleteEvent(eventOrId);
       this.notifyPropertyChange('events'); 
     },
