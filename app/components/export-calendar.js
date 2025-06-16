@@ -1,61 +1,84 @@
 import Ember from 'ember';
 
 export default Ember.Component.extend({
-  actions: {
-    exportToICS(events) {
-      let icsContent = `
-        BEGIN:VCALENDAR
-        VERSION:2.0
-        PRODID:-//YourApp//EN
-        CALSCALE:GREGORIAN
-        `;
+  tagName: 'button',
+  classNames: ['btn', 'btn-outline-secondary', 'rounded-pill', 'px-3'],
+  attributeBindings: ['disabled'],
 
-            events.forEach(event => {
-                const localDateTime = this.formatToICSDateTimeLocal(new Date(event.date));
+  disabled: Ember.computed.empty('filteredEvents'),
 
-                icsContent += `
-        BEGIN:VEVENT
-        UID:${event.id}@yourapp
-        DTSTAMP:${this.formatToICSDateTimeLocal(new Date())}
-        DTSTART:${localDateTime}
-        SUMMARY:${this.escapeText(event.title)}
-        DESCRIPTION:${this.escapeText(event.description || '')}
-        END:VEVENT
-        `;
-      });
+  click() {
+    const events = this.get('filteredEvents');
+    if (Ember.isEmpty(events)) return;
+    this.exportToICS(events);
+  },
 
-      icsContent += `END:VCALENDAR`;
+  filteredEvents: Ember.computed('events.[]', 'currentView', 'currentMonth', function () {
+    const events = this.get('events') || [];
+    const view = this.get('currentView');
+    const moment = window.moment;
 
-      const blob = new Blob([icsContent.trim()], { type: 'text/calendar;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'calendar.ics';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    if (view === 'day') {
+      const today = moment().format('YYYY-MM-DD');
+      return events.filter(e => e.date.startsWith(today));
     }
+
+    if (view === 'week') {
+      const start = moment().startOf('isoWeek');
+      const end = moment().endOf('isoWeek');
+      return events.filter(e => moment(e.date).isBetween(start, end, null, '[]'));
+    }
+
+    if (view === 'month') {
+      const start = moment(this.get('currentMonth')).startOf('month');
+      const end = moment(this.get('currentMonth')).endOf('month');
+      return events.filter(e => moment(e.date).isBetween(start, end, null, '[]'));
+    }
+
+    return events;
+  }),
+
+  exportToICS(events) {
+    let ics = `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//YourApp//EN
+CALSCALE:GREGORIAN
+`.trim();
+
+    events.forEach(e => {
+      const date = this.formatToICSDateTimeLocal(new Date(e.date));
+      ics += `
+BEGIN:VEVENT
+UID:${e.id}@yourapp
+DTSTAMP:${this.formatToICSDateTimeLocal(new Date())}
+DTSTART:${date}
+SUMMARY:${this.escapeText(e.title)}
+DESCRIPTION:${this.escapeText(e.description || '')}
+END:VEVENT
+`.trim();
+    });
+
+    ics += `
+END:VCALENDAR
+`.trim();
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'calendar.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   },
 
   formatToICSDateTimeLocal(date) {
-    const pad = n => (n < 10 ? '0' + n : n);
-    return (
-      date.getFullYear().toString() +
-      pad(date.getMonth() + 1) +
-      pad(date.getDate()) +
-      'T' +
-      pad(date.getHours()) +
-      pad(date.getMinutes()) +
-      pad(date.getSeconds())
-    );
+    return window.moment(date).format('YYYYMMDDTHHmmss');
   },
 
   escapeText(text) {
-    return text
-      .replace(/\\/g, '\\\\')
-      .replace(/;/g, '\\;')
-      .replace(/,/g, '\\,')
-      .replace(/\n/g, '\\n');
+    return text.replace(/([,;])/g, '\\$1').replace(/\n/g, '\\n');
   }
 });

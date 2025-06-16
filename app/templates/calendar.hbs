@@ -4,7 +4,7 @@
     <button {{action "setView" "week"}} class="btn btn-outline-primary {{if (eq currentView 'week') 'active'}}">Week</button>
     <button {{action "setView" "day"}} class="btn btn-outline-primary {{if (eq currentView 'day') 'active'}}">Day</button>
     <button {{action "setView" "month"}} class="btn btn-outline-primary {{if (eq currentView 'month') 'active'}}">Month</button>
-    {{export-calendar events=events}} {{! <-- Add this here }}
+    {{export-calendar events=events currentView=currentView currentMonth=currentMonth}}
   </div>
 
   {{#if (eq currentView "week")}}
