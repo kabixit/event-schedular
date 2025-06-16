@@ -1,28 +1,30 @@
 import Ember from 'ember';
-import EventManager from '../mixins/event-manager';
 
-export default Ember.Controller.extend(EventManager, {
+export default Ember.Controller.extend({
+  eventStore: Ember.inject.service(),
+  
+  // Form fields for new events
   newEventTitle: '',
   newEventDate: '',
   newEventDescription: '',
+
+  // Fields for editing
   editingEventId: null,
   editedEventTitle: '',
   editedEventDate: '',
   editedEventDescription: '',
 
-  showAlert(message) {
-    const $modal = Ember.$('#alertModal');
-    Ember.$('#alertModalBody').text(message);
-    $modal.modal('show');
-  },
+  // Computed property
+  events: Ember.computed.readOnly('eventStore.events'),
 
   actions: {
+    // Add new event
     addEvent() {
-      const title = this.get('newEventTitle');
-      const date = this.get('newEventDate');
-      const description = this.get('newEventDescription');
-
-      if (this.addEvent(title, date, description)) {
+      const { newEventTitle, newEventDate, newEventDescription } = this.getProperties(
+        'newEventTitle', 'newEventDate', 'newEventDescription'
+      );
+      
+      if (this.get('eventStore').addEvent(newEventTitle, newEventDate, newEventDescription)) {
         this.setProperties({
           newEventTitle: '',
           newEventDate: '',
@@ -31,12 +33,13 @@ export default Ember.Controller.extend(EventManager, {
       }
     },
 
+    // Edit existing event
     startEdit(event) {
       this.setProperties({
         editingEventId: event.id,
         editedEventTitle: event.title,
         editedEventDate: event.date,
-        editedEventDescription: event.description
+        editedEventDescription: event.description || ''
       });
     },
 
@@ -45,21 +48,20 @@ export default Ember.Controller.extend(EventManager, {
     },
 
     saveEdit() {
-      const event = this.findEventById(this.get('editingEventId'));
-      if (event) {
-        this.updateEvent(
-          event.id,
-          this.get('editedEventTitle'),
-          this.get('editedEventDate'),
-          this.get('editedEventDescription')
-        );
-        this.set('editingEventId', null);
-      }
+      this.get('eventStore').updateEvent(
+        this.get('editingEventId'),
+        this.get('editedEventTitle'),
+        this.get('editedEventDate'),
+        this.get('editedEventDescription')
+      );
+      this.set('editingEventId', null);
     },
 
-     deleteEvent(event) {
-      this.deleteEvent(event);
-      return false; 
+    // Delete event
+    deleteEvent(event) {
+      if (confirm('Are you sure you want to delete this event?')) {
+        this.get('eventStore').deleteEvent(event.id);
+      }
     }
   }
 });

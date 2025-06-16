@@ -1,6 +1,8 @@
 import Ember from 'ember';
 
 export default Ember.Route.extend({
+  eventStore: Ember.inject.service(),
+
   model() {
     const startOfWeek = window.moment().startOf('isoWeek');
 
@@ -13,18 +15,10 @@ export default Ember.Route.extend({
       });
     }
 
-    const hours = [];
-    for (let h = 0; h < 24; h++) {
-      hours.push(h);
-    }
-
-    // ✅ FIX: Load events from localStorage
-    let events = [];
-    const storedEvents = localStorage.getItem('events');
-    if (storedEvents) {
-      events = JSON.parse(storedEvents);
-    }
-
-    return { days, hours, events };
+    return {
+      days,
+      hours: Array.from({ length: 24 }, (_, i) => i),
+      events: this.get('eventStore.events')
+    };
   }
 });

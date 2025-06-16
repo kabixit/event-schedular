@@ -1,13 +1,20 @@
 import Ember from 'ember';
-import EventManager from '../mixins/event-manager';
 
-export default Ember.Controller.extend(EventManager, {
+export default Ember.Controller.extend({
+  eventStore: Ember.inject.service(),
+  
+  // Current view state
   currentView: 'week',
   currentMonth: null,
+  
+  // Form fields
   newEventTitle: '',
   newEventDescription: '',
   newEventDate: '',
   editingEventId: null,
+
+  // Expose events from service
+  events: Ember.computed.readOnly('eventStore.events'),
 
   init() {
     this._super(...arguments);
@@ -61,13 +68,13 @@ export default Ember.Controller.extend(EventManager, {
 
     saveNewEvent() {
       const success = this.get('editingEventId') 
-        ? this.updateEvent(
+        ? this.get('eventStore').updateEvent(
             this.get('editingEventId'),
             this.get('newEventTitle'),
             this.get('newEventDate'),
             this.get('newEventDescription')
           )
-        : this.addEvent(
+        : this.get('eventStore').addEvent(
             this.get('newEventTitle'),
             this.get('newEventDate'),
             this.get('newEventDescription')
@@ -75,7 +82,6 @@ export default Ember.Controller.extend(EventManager, {
 
       if (success) {
         bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
-        this.notifyPropertyChange('events'); 
       }
     },
 
@@ -94,25 +100,22 @@ export default Ember.Controller.extend(EventManager, {
         if (!eventData.id) throw new Error('Invalid event data');
 
         const newDate = `${date}T${hour.toString().padStart(2, '0')}:00`;
-
-        this.setProperties({
-          newEventTitle: eventData.title,
-          newEventDescription: eventData.description,
-          newEventDate: newDate,
-          editingEventId: eventData.id
-        });
-
-        new bootstrap.Modal(document.getElementById('addEventModal')).show();
-
+        this.get('eventStore').updateEvent(
+          eventData.id,
+          eventData.title,
+          newDate,
+          eventData.description
+        );
       } catch (error) {
         this.showAlert('Failed to move event');
       }
     },
 
-
     deleteEvent(eventOrId) {
-      this.deleteEvent(eventOrId);
-      this.notifyPropertyChange('events'); 
+      const id = typeof eventOrId === 'object' ? eventOrId.id : eventOrId;
+      if (confirm('Are you sure you want to delete this event?')) {
+        this.get('eventStore').deleteEvent(id);
+      }
     },
 
     stopPropagation(evt) {

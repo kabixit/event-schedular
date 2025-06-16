@@ -239,3 +239,18 @@ body.dark-mode .btn-outline-danger:hover {
   background-color: #f87171;
   color: #0f172a;
 }
+
+/* Drag and Drop Styles */
+.calendar-cell.drop-target {
+  background-color: #f0f8ff !important;
+  box-shadow: inset 0 0 0 2px #1e90ff;
+}
+
+.event-item {
+  cursor: move;
+  transition: opacity 0.2s;
+}
+
+.event-item.dragging {
+  opacity: 0.4;
+}

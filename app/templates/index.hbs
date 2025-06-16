@@ -13,17 +13,31 @@
 
           <div class="col-md-6">
             <label for="eventDate" class="form-label fw-semibold text-secondary">Date & Time</label>
-            <input type="datetime-local" id="eventDate" class="form-control form-control-lg premium-input" value={{newEventDate}} onchange={{action (mut newEventDate) value="target.value"}}>
+            <input 
+              type="datetime-local" 
+              id="eventDate" 
+              class="form-control form-control-lg premium-input" 
+              value={{newEventDate}} 
+              onchange={{action (mut newEventDate) value="target.value"}}
+            >
           </div>
 
           <div class="col-12">
             <label for="eventDescription" class="form-label fw-semibold text-secondary">Description</label>
-            {{textarea value=newEventDescription class="form-control premium-input" id="eventDescription" placeholder="Optional details about the event" rows="3"}}
+            {{textarea 
+              value=newEventDescription 
+              class="form-control premium-input" 
+              id="eventDescription" 
+              placeholder="Optional details about the event" 
+              rows="3"
+            }}
           </div>
         </div>
 
         <div class="mt-4">
-          <button type="submit" class="btn btn-gradient px-5 py-2 rounded-pill fs-5 shadow-sm">+ Add Event</button>
+          <button type="submit" class="btn btn-gradient px-5 py-2 rounded-pill fs-5 shadow-sm">
+            + Add Event
+          </button>
         </div>
       </form>
     </div>
@@ -31,35 +45,66 @@
 
   <h2 class="mb-4 fw-bold display-7 text-dark">All Events</h2>
 
-  {{#if events.length}}
+  {{#if eventStore.events.length}}
     <div class="row g-4">
-      {{#each events as |event|}}
+      {{#each eventStore.events as |event|}}
         <div class="col-md-6 col-lg-4">
           <div class="card premium-event-card h-100 border-0 shadow-sm rounded-4 p-4 position-relative">
 
             {{#if (eq editingEventId event.id)}}
               <div>
-                {{input value=editedEventTitle class="form-control mb-3 premium-input" placeholder="Edit title"}}
-                <input type="datetime-local" class="form-control mb-3 premium-input" value={{editedEventDate}} onchange={{action (mut editedEventDate) value="target.value"}}>
-                {{textarea value=editedEventDescription class="form-control mb-3 premium-input" placeholder="Edit description" rows="3"}}
+                {{input 
+                  value=editedEventTitle 
+                  class="form-control mb-3 premium-input" 
+                  placeholder="Edit title"
+                }}
+                <input 
+                  type="datetime-local" 
+                  class="form-control mb-3 premium-input" 
+                  value={{editedEventDate}} 
+                  onchange={{action (mut editedEventDate) value="target.value"}}
+                >
+                {{textarea 
+                  value=editedEventDescription 
+                  class="form-control mb-3 premium-input" 
+                  placeholder="Edit description" 
+                  rows="3"
+                }}
               </div>
 
               <div class="d-flex gap-2">
-                <button class="btn btn-success btn-sm px-4 rounded-pill shadow-sm" {{action "saveEdit" event}}>Save</button>
-                <button class="btn btn-outline-secondary btn-sm px-4 rounded-pill" {{action "cancelEdit"}}>Cancel</button>
+                <button 
+                  class="btn btn-success btn-sm px-4 rounded-pill shadow-sm" 
+                  {{action "saveEdit" event}}
+                >
+                  Save
+                </button>
+                <button 
+                  class="btn btn-outline-secondary btn-sm px-4 rounded-pill" 
+                  {{action "cancelEdit"}}
+                >
+                  Cancel
+                </button>
               </div>
 
             {{else}}
               <div>
                 <h5 class="fw-bold text-dark mb-1">{{event.title}}</h5>
-                <div class="small text-muted mb-2">{{format-date event.date 'LLLL'}}</div>
+                <div class="small text-muted mb-2">
+                  {{moment-format event.date 'LLLL'}}
+                </div>
                 {{#if event.description}}
                   <p class="text-secondary small mb-3">{{event.description}}</p>
                 {{/if}}
               </div>
 
               <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-outline-warning btn-sm px-4 rounded-pill shadow-sm" {{action "startEdit" event}}>Edit</button>
+                <button 
+                  class="btn btn-outline-warning btn-sm px-4 rounded-pill shadow-sm" 
+                  {{action "startEdit" event}}
+                >
+                  Edit
+                </button>
                 <button 
                   class="btn btn-outline-danger btn-sm px-4 rounded-pill shadow-sm" 
                   {{action "deleteEvent" event bubbles=false}}
