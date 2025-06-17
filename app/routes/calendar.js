@@ -2,7 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   eventStore: Ember.inject.service(),
-  session: Ember.inject.service(), 
+  session: Ember.inject.service(),
 
   beforeModel() {
     if (!this.get('session.isAuthenticated')) {
@@ -30,10 +30,9 @@ export default Ember.Route.extend({
   },
 
   afterModel() {
-    if (this.get('eventStore').isEmpty()) {
+    const events = this.get('eventStore.events');
+    if (Ember.isEmpty(events)) {
       alert("You don't have any events yet! Start by adding your first one.");
     }
-  },
-
-  
+  }
 });
