@@ -6,40 +6,53 @@ export default Ember.Component.extend({
 
   init() {
     this._super(...arguments);
-    console.log(`Component initialized for event: ${this.get('event.title')}`);
-  },
-
-  didReceiveAttrs() {
-    this._super(...arguments);
-    console.log(`Attributes updated for event: ${this.get('event.title')}`);
+    this.inputId = `event-title-${this.get('event.id')}`;
   },
 
   didInsertElement() {
-    console.log(`DOM inserted for event: ${this.get('event.title')}`);
+    $(this.element).find('[title]').tooltip();
+
+    if (this.get('editingEventId') === this.get('event.id')) {
+      this.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // ➔ Escape key listener to cancel edit
+    this._handleEscape = (e) => {
+      if (e.key === 'Escape' && this.get('editingEventId') === this.get('event.id')) {
+        this.sendAction('cancelEdit');
+      }
+    };
+    window.addEventListener('keydown', this._handleEscape);
   },
 
   didUpdate() {
     this._super(...arguments);
-    console.log(`Component updated (re-rendered) for event: ${this.get('event.title')}`);
+
+    if (this.get('editingEventId') === this.get('event.id')) {
+      let $el = $(this.element);
+      $el.addClass('event-update-animation');
+
+      setTimeout(() => {
+        $el.removeClass('event-update-animation');
+      }, 1000);
+    }
   },
 
   willDestroyElement() {
-    console.log(`Cleaning up component for event: ${this.get('event.title')}`);
+    window.removeEventListener('keydown', this._handleEscape);
+    $(this.element).find('[title]').tooltip('dispose');
   },
 
   actions: {
     startEdit() {
       this.sendAction('startEdit', this.get('event'));
     },
-
     deleteEvent() {
       this.sendAction('deleteEvent', this.get('event'));
     },
-
     cancelEdit() {
       this.sendAction('cancelEdit');
     },
-
     saveEdit() {
       this.sendAction('saveEdit');
     }

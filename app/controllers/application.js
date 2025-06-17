@@ -2,6 +2,7 @@ import Ember from 'ember';
 
 export default Ember.Controller.extend({
   eventStore: Ember.inject.service(),
+  session: Ember.inject.service(),
 
   init() {
     this._super(...arguments);
@@ -15,7 +16,11 @@ export default Ember.Controller.extend({
         'theme',
         document.body.classList.contains('dark-mode') ? 'dark' : 'light'
       );
-    }
+    },
+    logout() {
+      this.get('session').logout();
+      this.transitionToRoute('login');
+    },
   },
 
   applyStoredTheme() {

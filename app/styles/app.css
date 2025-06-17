@@ -543,3 +543,18 @@ body.dark-mode .calendar-day-cell.calendar-today {
     padding: 4px;
   }
 }
+
+.event-update-animation {
+  animation: updateFade 1s ease-out;
+}
+
+@keyframes updateFade {
+  0% {
+    background-color: #fff3cd; /* light yellow */
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+

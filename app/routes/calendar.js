@@ -2,6 +2,13 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
   eventStore: Ember.inject.service(),
+  session: Ember.inject.service(), 
+
+  beforeModel() {
+    if (!this.get('session.isAuthenticated')) {
+      this.transitionTo('login');
+    }
+  },
 
   model() {
     const startOfWeek = window.moment().startOf('isoWeek');
@@ -20,5 +27,13 @@ export default Ember.Route.extend({
       hours: Array.from({ length: 24 }, (_, i) => i),
       events: this.get('eventStore.events')
     };
-  }
+  },
+
+  afterModel() {
+    if (this.get('eventStore').isEmpty()) {
+      alert("You don't have any events yet! Start by adding your first one.");
+    }
+  },
+
+  
 });
