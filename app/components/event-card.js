@@ -16,7 +16,6 @@ export default Ember.Component.extend({
       this.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    // ➔ Escape key listener to cancel edit
     this._handleEscape = (e) => {
       if (e.key === 'Escape' && this.get('editingEventId') === this.get('event.id')) {
         this.sendAction('cancelEdit');
