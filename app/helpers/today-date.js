@@ -1,5 +1,7 @@
-import Ember from 'ember';
+import { helper } from '@ember/component/helper';
 
-export default Ember.Helper.helper(function() {
+export function todayDate() {
   return window.moment().format('YYYY-MM-DD');
-});
+}
+
+export default helper(todayDate);

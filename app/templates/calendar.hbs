@@ -8,129 +8,139 @@
   </div>
 
   {{#if (eq currentView "week")}}
-    <div class="table-responsive rounded overflow-hidden">
-      <table class="table table-bordered text-center align-middle mb-0">
-        <thead class="table-light sticky-top">
-          <tr>
-            <th class="bg-light text-nowrap">Time</th>
-            {{#each model.days as |day|}}
-              <th class="bg-light text-nowrap">{{day.label}}</th>
-            {{/each}}
-          </tr>
-        </thead>
-        <tbody>
+    <div class="calendar-week-view">
+      <div class="calendar-header">
+        <div class="calendar-time-column"></div>
+        {{#each model.days as |day|}}
+          <div class="calendar-day-header {{if (eq day.date (today-date)) 'calendar-today'}}">
+            <div class="calendar-day-name">{{day.shortLabel}}</div>
+            <div class="calendar-date-number">{{moment-format day.date 'D'}}</div>
+          </div>
+        {{/each}}
+      </div>
+      
+      <div class="calendar-body">
+        <div class="calendar-time-column">
           {{#each model.hours as |hour|}}
-            <tr>
-              <th class="align-middle text-nowrap bg-light">{{if (lt hour 10) (concat "0" hour) hour}}:00</th>
-              {{#each model.days as |day|}}
-                <td
-                  class="calendar-cell position-relative"
-                  style="min-width: 120px; height: 100px; padding: 2px;"
+            <div class="calendar-hour-marker">{{if (lt hour 10) (concat "0" hour) hour}}:00</div>
+          {{/each}}
+        </div>
+        
+        <div class="calendar-day-columns">
+          {{#each model.days as |day|}}
+            <div class="calendar-day-column {{if (eq day.date (today-date)) 'calendar-today'}}">
+              {{#each model.hours as |hour|}}
+                <div class="calendar-hour-slot"
                   draggable="false"
                   ondrop={{action "handleDrop" day.date hour}}
                   ondragover={{action "allowDrop"}}
-                  {{action "openAddEventModal" day.date hour}}
-                >
-                  {{#each events as |event|}}
-                    {{#if (and (eq (format-date event.date) day.date) (eq (format-hour event.date) hour))}}
-                      <div
-                        class="bg-primary text-white rounded px-2 py-1 mb-1 small d-flex justify-content-between align-items-start shadow-sm"
-                        draggable="true"
-                        ondragstart={{action "handleDragStart" event}}
-                        {{action "stopPropagation"}}
-                      >
-                        <div class="text-start" style="overflow: hidden; max-width: 75%;">
-                          <div class="fw-semibold text-truncate">{{event.title}}</div>
-                          <div class="small text-white-50">{{format-time event.date}}</div>
-                        </div>
-                        <div class="ms-1 d-flex flex-column align-items-end gap-1">
-                          <button type="button" class="btn btn-sm btn-outline-light rounded-circle px-1 py-0"
-                            {{action "deleteEvent" event.id bubbles=false}}>×</button>
-                          <button type="button" class="btn btn-sm btn-light text-primary rounded-pill px-2 py-0 fw-semibold border"
-                            {{action "openEditEventModal" event bubbles=false}}>Edit</button>
-                        </div>
+                  {{action "openAddEventModal" day.date hour}}>
+                  
+                  {{#each (filter-by-hour events day.date hour) as |event|}}
+                    <div class="calendar-event"
+                      draggable="true"
+                      ondragstart={{action "handleDragStart" event}}
+                      {{action "stopPropagation"}}>
+                      <div class="calendar-event-content">
+                        <div class="calendar-event-time">{{format-time event.date}}</div>
+                        <div class="calendar-event-title">{{event.title}}</div>
                       </div>
-                    {{/if}}
+                      <div class="calendar-event-actions">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-circle px-1 py-0 lh-1"
+                          {{action "deleteEvent" event.id bubbles=false}}>×</button>
+                        <button type="button" class="btn btn-sm btn-light text-primary rounded-pill px-2 py-0 fw-semibold border lh-1"
+                          {{action "openEditEventModal" event bubbles=false}}>Edit</button>
+                      </div>
+                    </div>
                   {{/each}}
-                </td>
+                </div>
               {{/each}}
-            </tr>
+            </div>
           {{/each}}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
 
   {{else if (eq currentView "day")}}
-    <div class="mb-2 fw-semibold">Today: {{moment-format (now) 'dddd, MMMM Do YYYY'}}</div>
-    <div class="list-group">
-      {{#each events as |event|}}
-        {{#if (eq (format-date event.date) (today-date))}}
-          <div class="list-group-item d-flex justify-content-between align-items-center shadow-sm">
-            <div>
-              <div class="fw-semibold">{{event.title}}</div>
-              <div class="small text-muted">{{format-time event.date}}</div>
-            </div>
-            <div>
-              <button {{action "openEditEventModal" event bubbles=false}} class="btn btn-sm btn-outline-primary me-2">Edit</button>
-              <button {{action "deleteEvent" event.id bubbles=false}} class="btn btn-sm btn-outline-danger">Delete</button>
+    <div class="calendar-day-view">
+      <div class="calendar-day-header">
+        <h4>{{moment-format (now) 'dddd, MMMM Do YYYY'}}</h4>
+      </div>
+      
+      <div class="calendar-day-body">
+        {{#each model.hours as |hour|}}
+          <div class="calendar-hour-row">
+            <div class="calendar-hour-marker">{{if (lt hour 10) (concat "0" hour) hour}}:00</div>
+            <div class="calendar-hour-content"
+              {{action "openAddEventModal" (today-date) hour}}>
+              
+              {{#each (filter-by-hour events (today-date) hour) as |event|}}
+                <div class="calendar-event"
+                  draggable="true"
+                  ondragstart={{action "handleDragStart" event}}
+                  {{action "stopPropagation"}}>
+                  <div class="calendar-event-content">
+                    <div class="calendar-event-time">{{format-time event.date}}</div>
+                    <div class="calendar-event-title">{{event.title}}</div>
+                    <div class="calendar-event-description">{{event.description}}</div>
+                  </div>
+                  <div class="calendar-event-actions">
+                    <button {{action "openEditEventModal" event bubbles=false}} class="btn btn-sm btn-outline-primary me-2">Edit</button>
+                    <button {{action "deleteEvent" event.id bubbles=false}} class="btn btn-sm btn-outline-danger">Delete</button>
+                  </div>
+                </div>
+              {{/each}}
             </div>
           </div>
-        {{/if}}
-      {{else}}
-        <div class="text-muted">No events today.</div>
-      {{/each}}
+        {{/each}}
+      </div>
     </div>
 
   {{else}}
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <button class="btn btn-outline-secondary btn-sm" {{action "prevMonth"}}>← Prev</button>
-      <h5 class="mb-0">{{moment-format currentMonth 'MMMM YYYY'}}</h5>
-      <button class="btn btn-outline-secondary btn-sm" {{action "nextMonth"}}>Next →</button>
-    </div>
-
-    <div class="table-responsive rounded overflow-hidden border">
-      <table class="table table-bordered text-center mb-0 small">
-        <thead class="table-light sticky-top">
-          <tr>
-            <th>Sun</th>
-            <th>Mon</th>
-            <th>Tue</th>
-            <th>Wed</th>
-            <th>Thu</th>
-            <th>Fri</th>
-            <th>Sat</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each (month-grid currentMonth) as |week|}}
-            <tr>
-              {{#each week as |dateObj|}}
-                <td class="position-relative p-1 {{if dateObj.isCurrentMonth '' 'bg-light text-muted'}}"
-                    style="height: 100px; min-width: 120px;"
-                    draggable="false"
-                    ondrop={{action "handleDrop" dateObj.date 0}}
-                    ondragover={{action "allowDrop"}}
-                    {{action "openAddEventModal" dateObj.date 0}}
-                >
-                  <div class="position-absolute top-0 end-0 small text-muted m-1">{{moment-format dateObj.date "D"}}</div>
-
-                  {{#each events as |event|}}
-                    {{#if (eq (format-date event.date) dateObj.date)}}
-                      <div class="bg-primary text-white rounded px-1 py-0 mb-1 small text-truncate"
-                           draggable="true"
-                           ondragstart={{action "handleDragStart" event}}
-                           {{action "stopPropagation"}}
-                      >
-                        {{event.title}}
-                      </div>
-                    {{/if}}
+    <div class="calendar-month-view">
+      <div class="calendar-month-header">
+        <button class="btn btn-outline-secondary btn-sm" {{action "prevMonth"}}>← Prev</button>
+        <h4>{{moment-format currentMonth 'MMMM YYYY'}}</h4>
+        <button class="btn btn-outline-secondary btn-sm" {{action "nextMonth"}}>Next →</button>
+      </div>
+      
+      <div class="calendar-month-grid">
+        <div class="calendar-weekdays-header">
+          <div class="calendar-weekday">Sun</div>
+          <div class="calendar-weekday">Mon</div>
+          <div class="calendar-weekday">Tue</div>
+          <div class="calendar-weekday">Wed</div>
+          <div class="calendar-weekday">Thu</div>
+          <div class="calendar-weekday">Fri</div>
+          <div class="calendar-weekday">Sat</div>
+        </div>
+        
+        {{#each (month-grid currentMonth) as |week|}}
+          <div class="calendar-week">
+            {{#each week as |dateObj|}}
+              <div class="calendar-day-cell {{unless dateObj.isCurrentMonth 'calendar-other-month'}} {{if (eq dateObj.date (today-date)) 'calendar-today'}}"
+                draggable="false"
+                ondrop={{action "handleDrop" dateObj.date 0}}
+                ondragover={{action "allowDrop"}}
+                {{action "openAddEventModal" dateObj.date 0}}>
+                
+                <div class="calendar-date-number">{{moment-format dateObj.date "D"}}</div>
+                
+                <div class="calendar-day-events">
+                  {{#each (filter-by-date events dateObj.date) as |event|}}
+                    <div class="calendar-event"
+                      draggable="true"
+                      ondragstart={{action "handleDragStart" event}}
+                      {{action "stopPropagation"}}>
+                      <div class="calendar-event-title">{{event.title}}</div>
+                    </div>
                   {{/each}}
-                </td>
-              {{/each}}
-            </tr>
-          {{/each}}
-        </tbody>
-      </table>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
     </div>
   {{/if}}
 

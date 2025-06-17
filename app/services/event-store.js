@@ -12,6 +12,7 @@ export default Ember.Service.extend({
     try {
       const stored = localStorage.getItem('events');
       this.set('events', stored ? Ember.A(JSON.parse(stored)) : Ember.A([]));
+      console.log(this.events);
     } catch (error) {
       console.error('Failed to load events:', error);
       this.set('events', Ember.A([]));

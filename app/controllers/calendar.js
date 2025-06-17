@@ -1,30 +1,32 @@
-import Ember from 'ember';
+import Controller from '@ember/controller';
+import { inject as service } from '@ember/service';
+import { action } from '@ember/object';
+import { computed } from '@ember/object';
 
-export default Ember.Controller.extend({
-  eventStore: Ember.inject.service(),
+export default Controller.extend({
+  eventStore: service(),
+  modal: service(),
   
-  // Current view state
   currentView: 'week',
   currentMonth: null,
   
-  // Form fields
   newEventTitle: '',
   newEventDescription: '',
   newEventDate: '',
   editingEventId: null,
 
-  // Expose events from service
-  events: Ember.computed.readOnly('eventStore.events'),
+  events: computed.readOnly('eventStore.events'),
 
   init() {
     this._super(...arguments);
     this.set('currentMonth', window.moment().startOf('month').format('YYYY-MM-DD'));
   },
 
+
   showAlert(message) {
-    const $modal = Ember.$('#alertModal');
-    Ember.$('#alertModalBody').text(message);
-    $modal.modal('show');
+    const modal = new window.bootstrap.Modal(document.getElementById('alertModal'));
+    document.getElementById('alertModalBody').textContent = message;
+    modal.show();
   },
 
   actions: {
@@ -34,7 +36,11 @@ export default Ember.Controller.extend({
         this.set('currentMonth', window.moment().startOf('month').format('YYYY-MM-DD'));
       }
     },
-
+     viewDay(date) {
+      this.set('currentView', 'day');
+      this.set('currentDate', date); // You'll need to handle this in your day view
+    },
+  
     nextMonth() {
       const next = window.moment(this.get('currentMonth')).add(1, 'month').format('YYYY-MM-DD');
       this.set('currentMonth', next);
@@ -53,7 +59,7 @@ export default Ember.Controller.extend({
         newEventDate: datetime,
         editingEventId: null
       });
-      new bootstrap.Modal(document.getElementById('addEventModal')).show();
+      new window.bootstrap.Modal(document.getElementById('addEventModal')).show();
     },
 
     openEditEventModal(event) {
@@ -63,7 +69,7 @@ export default Ember.Controller.extend({
         newEventDate: event.date,
         editingEventId: event.id
       });
-      new bootstrap.Modal(document.getElementById('addEventModal')).show();
+      new window.bootstrap.Modal(document.getElementById('addEventModal')).show();
     },
 
     saveNewEvent() {
@@ -81,7 +87,7 @@ export default Ember.Controller.extend({
           );
 
       if (success) {
-        bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
+        window.bootstrap.Modal.getInstance(document.getElementById('addEventModal')).hide();
       }
     },
 
@@ -120,6 +126,24 @@ export default Ember.Controller.extend({
 
     stopPropagation(evt) {
       evt.stopPropagation();
+    },
+
+    showHourEvents(date, hour, event) {
+      const events = this.filterByHour(this.get('events'), date, hour);
+      this.get('modal').show('events-popover', {
+        title: `Events at ${hour}:00`,
+        events,
+        target: event.target
+      });
+    },
+
+    showDateEvents(date, event) {
+      const events = this.filterByDate(this.get('events'), date);
+      this.get('modal').show('events-popover', {
+        title: window.moment(date).format('MMMM D'),
+        events,
+        target: event.target
+      });
     }
   }
 });

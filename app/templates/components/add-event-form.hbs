@@ -1,0 +1,40 @@
+<div class="card-overlay"></div>
+<div class="card-body p-5 position-relative">
+  <h2 class="mb-4 fw-bold display-7 gradient-text">Add New Event</h2>
+
+  <form {{action addEvent on="submit"}}>
+    <div class="row g-4">
+      <div class="col-md-6">
+        <label for="eventTitle" class="form-label fw-semibold text-secondary">Event Title</label>
+        {{input value=newEventTitle class="form-control form-control-lg premium-input" id="eventTitle" placeholder="e.g., Team Meeting"}}
+      </div>
+
+      <div class="col-md-6">
+        <label for="eventDate" class="form-label fw-semibold text-secondary">Date & Time</label>
+        {{input 
+          type="datetime-local"
+          class="form-control form-control-lg premium-input"
+          id="eventDate"
+          value=newEventDate
+        }}
+      </div>
+
+      <div class="col-12">
+        <label for="eventDescription" class="form-label fw-semibold text-secondary">Description</label>
+        {{textarea 
+          value=newEventDescription 
+          class="form-control premium-input" 
+          id="eventDescription" 
+          placeholder="Optional details about the event" 
+          rows="3"
+        }}
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn btn-gradient px-5 py-2 rounded-pill fs-5 shadow-sm">
+        + Add Event
+      </button>
+    </div>
+  </form>
+</div>
